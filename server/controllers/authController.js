@@ -22,7 +22,7 @@ exports.registerUser = async (req,res) => {
     const hashedPassword = await bcrypt.hash(password,salt);
     
     try{
-        const user = await User.create({name,email,password:hashedPassword, role, isVerified: false});
+        const user = await User.create({name,email,password:hashedPassword, role:'admin', isVerified: false});
 
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
         console.log(`OTP for ${email}: ${otp}`);
