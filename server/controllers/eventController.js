@@ -6,13 +6,13 @@ exports.getAllEvents = async (req, res) => {
     try {
 
         const filters = {};
-        if(req.query.category) {
+        if (req.query.category) {
             filters.category = req.query.category;
         }
-        if(req.query.location){
+        if (req.query.location) {
             filters.location = req.query.location;
         }
-        if(req.query.ticketPrice){
+        if (req.query.ticketPrice) {
             filters.ticketPrice = { $lte: parseFloat(req.query.ticketPrice) };
         }
 
@@ -30,8 +30,8 @@ exports.getAllEvents = async (req, res) => {
 exports.getEventById = async (req, res) => {
     try {
         const event = await Event.findById(req.params.id);
-        if(!event){
-            return res.status(404).json({message:'Event not found'});
+        if (!event) {
+            return res.status(404).json({ message: 'Event not found' });
         }
         res.json(event);
     } catch (error) {
@@ -41,8 +41,8 @@ exports.getEventById = async (req, res) => {
 };
 
 exports.createEvent = async (req, res) => {
-    const {title, description, date, location, category, totalSeats, ticketPrice, imageUrl} = req.body;
-    try{
+    const { title, description, date, location, category, totalSeats, ticketPrice, imageUrl } = req.body;
+    try {
         const event = await Event.create({
             title,
             description,
@@ -50,8 +50,10 @@ exports.createEvent = async (req, res) => {
             location,
             category,
             totalSeats,
+            availableSeats: totalSeats,
             ticketPrice,
-            imageUrl
+            imageUrl,
+            createdBy: req.user._id,
         });
         res.status(201).json(event);
     } catch (error) {
@@ -61,9 +63,9 @@ exports.createEvent = async (req, res) => {
 };
 
 exports.updateEvent = async (req, res) => {
-    const {title, description, date, location, category, totalSeats, ticketPrice, imageUrl} = req.body;
+    const { title, description, date, location, category, totalSeats, ticketPrice, imageUrl } = req.body;
 
-    try{
+    try {
         const event = await Event.findByIdAndUpdate(req.params.id, {
             title,
             description,
@@ -73,9 +75,9 @@ exports.updateEvent = async (req, res) => {
             totalSeats,
             ticketPrice,
             imageUrl
-        }, {new:true});
-        if(!event){
-            return res.status(404).json({message:'Event not found'});
+        }, { new: true });
+        if (!event) {
+            return res.status(404).json({ message: 'Event not found' });
         }
         res.json(event);
     } catch (error) {
@@ -85,12 +87,12 @@ exports.updateEvent = async (req, res) => {
 };
 
 exports.deleteEvent = async (req, res) => {
-    try{
+    try {
         const event = await Event.findByIdAndDelete(req.params.id);
-        if(!event){
-            return res.status(404).json({message:'Event not found'});
+        if (!event) {
+            return res.status(404).json({ message: 'Event not found' });
         }
-        res.json({message:'Event deleted successfully'});
+        res.json({ message: 'Event deleted successfully' });
     }
     catch (error) {
         console.error('Error deleting event:', error);

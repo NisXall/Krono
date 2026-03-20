@@ -125,4 +125,42 @@ const getSubject = (type) => {
     }
 };
 
+exports.sendBookingEmail = async (email, eventTitle, bookingId) => {
+    try {
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: email,
+            subject: 'Your Krono Booking is Confirmed!',
+            html: `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Booking Confirmed</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; }
+        .container { background-color: #ffffff; padding: 20px; border-radius: 8px; max-width: 400px; margin: auto; text-align: center; }
+        .header { color: #333; }
+        .booking-id { font-size: 16px; font-weight: bold; color: #007bff; background-color: #e9ecef; padding: 10px; border-radius: 4px; margin: 20px 0; }
+        .footer { color: #999; font-size: 12px; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="header">Krono</h1>
+        <p>Your booking for <strong>${eventTitle}</strong> has been confirmed!</p>
+        <div class="booking-id">Booking ID: ${bookingId}</div>
+        <p>Thank you for booking with Krono. Enjoy the event!</p>
+        <div class="footer">If you have any questions, please contact support.</div>
+    </div>
+</body>
+</html>`,
+            text: `Your booking for ${eventTitle} is confirmed! Booking ID: ${bookingId}`,
+        };
+        await transporter.sendMail(mailOptions);
+        console.log(`Booking confirmation email sent to ${email}`);
+    } catch (error) {
+        console.error(`Error sending booking confirmation email to ${email}:`, error);
+    }
+};
 

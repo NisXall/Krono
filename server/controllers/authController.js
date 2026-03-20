@@ -10,7 +10,7 @@ const generateToken = (id,role) => {
 
 
 exports.registerUser = async (req,res) => {
-    const {name,email,password} = req.body;
+    const {name,email,password,role} = req.body;
 
     let userExists = await User.findOne({email});
     if(userExists){
@@ -22,7 +22,7 @@ exports.registerUser = async (req,res) => {
     const hashedPassword = await bcrypt.hash(password,salt);
     
     try{
-        const user = await User.create({name,email,password:hashedPassword, role: 'user', isVerified: false});
+        const user = await User.create({name,email,password:hashedPassword, role, isVerified: false});
 
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
         console.log(`OTP for ${email}: ${otp}`);
