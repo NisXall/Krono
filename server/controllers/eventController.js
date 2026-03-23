@@ -6,6 +6,15 @@ exports.getAllEvents = async (req, res) => {
     try {
 
         const filters = {};
+        if (req.query.search) {
+            const keywordRegex = new RegExp(req.query.search.trim(), 'i');
+            filters.$or = [
+                { title: keywordRegex },
+                { description: keywordRegex },
+                { category: keywordRegex },
+                { location: keywordRegex }
+            ];
+        }
         if (req.query.category) {
             filters.category = req.query.category;
         }
@@ -41,7 +50,8 @@ exports.getEventById = async (req, res) => {
 };
 
 exports.createEvent = async (req, res) => {
-    const { title, description, date, location, category, totalSeats, ticketPrice, imageUrl } = req.body;
+    const { title, description, date, location, category, totalSeats, ticketPrice, image:imageUrl } = req.body;
+    console.log(req.body);
     try {
         const event = await Event.create({
             title,

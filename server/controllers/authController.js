@@ -13,9 +13,14 @@ exports.registerUser = async (req,res) => {
     const {name,email,password,role} = req.body;
 
     let userExists = await User.findOne({email});
-    if(userExists){
+    if(userExists && userExists.isVerified){
         return res.status(400).json({error:'user already exists'});
+    }
 
+    // If user exists but not verified, delete the old record and allow re-registration
+    if(userExists && !userExists.isVerified){
+        await User.deleteOne({email});
+        await Otp.deleteMany({email});
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -25,7 +30,9 @@ exports.registerUser = async (req,res) => {
         const user = await User.create({name,email,password:hashedPassword, role:'user', isVerified: false});
 
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
-        console.log(`OTP for ${email}: ${otp}`);
+        console.log(`\n============================`);
+        console.log(`==> OTP for ${email}: ${otp} <==`);
+        console.log(`============================\n`);
 
         await Otp.create({email, otp, action: 'account_verification'});
         await sendOtpEmail(email, otp, 'account_verification');
@@ -37,7 +44,7 @@ exports.registerUser = async (req,res) => {
 
     }catch(error){
         console.error('Registration error:', error);
-        res.status(500).json({message:'Error registering user'});
+        res.status(500).json({error: error.message || 'Error registering user'});
     }
 };
 
@@ -57,6 +64,9 @@ exports.loginUser = async (req,res) => {
     if(!user.isVerified && user.role === 'user'){
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
         await Otp.deleteMany({email, action: 'account_verification'});
+        console.log(`\n============================`);
+        console.log(`==> OTP for ${email}: ${otp} <==`);
+        console.log(`============================\n`);
         await Otp.create({email, otp, action: 'account_verification'});
         await sendOtpEmail(email, otp, 'account_verification');
         return res.status(400).json({error:'Account not verified. Please check your email for OTP to verify your account'});
@@ -98,7 +108,7 @@ exports.verifyOtp = async (req,res) => {
         });
     } catch(error) {
         console.error('OTP verification error:', error);
-        res.status(500).json({message:'Error verifying OTP'});
+        res.status(500).json({error: error.message || 'Error verifying OTP'});
     }
 };
 
