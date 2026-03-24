@@ -40,6 +40,18 @@ const AdminDashboard = () => {
 
     const handleCreateEvent = async (e) => {
         e.preventDefault();
+
+        const parsedSeats = Number(formData.totalSeats);
+        const parsedPrice = Number(formData.ticketPrice);
+        if (!Number.isInteger(parsedSeats) || parsedSeats <= 0) {
+            alert('Total seats must be a positive whole number.');
+            return;
+        }
+        if (!Number.isFinite(parsedPrice) || parsedPrice < 0) {
+            alert('Ticket price cannot be negative.');
+            return;
+        }
+
         try {
             await api.post('/events', formData);
             setShowEventForm(false);
@@ -131,8 +143,8 @@ const AdminDashboard = () => {
                         <input required type="text" placeholder="Category (e.g., Tech, Music)" className="border px-4 py-3 rounded-lg focus:ring-2 focus:ring-purple-700 outline-none transition" value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })} />
                         <input required type="date" className="border px-4 py-3 rounded-lg focus:ring-2 focus:ring-purple-700 outline-none transition" value={formData.date} onChange={e => setFormData({ ...formData, date: e.target.value })} />
                         <input required type="text" placeholder="Location" className="border px-4 py-3 rounded-lg focus:ring-2 focus:ring-purple-700 outline-none transition" value={formData.location} onChange={e => setFormData({ ...formData, location: e.target.value })} />
-                        <input required type="number" placeholder="Total Seats" className="border px-4 py-3 rounded-lg focus:ring-2 focus:ring-purple-700 outline-none transition" value={formData.totalSeats} onChange={e => setFormData({ ...formData, totalSeats: e.target.value })} />
-                        <input required type="number" placeholder="Ticket Price (0 for free)" className="border px-4 py-3 rounded-lg focus:ring-2 focus:ring-purple-700 outline-none transition" value={formData.ticketPrice} onChange={e => setFormData({ ...formData, ticketPrice: e.target.value })} />
+                        <input required type="number" min="1" step="1" placeholder="Total Seats" className="border px-4 py-3 rounded-lg focus:ring-2 focus:ring-purple-700 outline-none transition" value={formData.totalSeats} onChange={e => setFormData({ ...formData, totalSeats: e.target.value })} />
+                        <input required type="number" min="0" step="0.01" placeholder="Ticket Price (0 for free)" className="border px-4 py-3 rounded-lg focus:ring-2 focus:ring-purple-700 outline-none transition" value={formData.ticketPrice} onChange={e => setFormData({ ...formData, ticketPrice: e.target.value })} />
 
                         <div className="md:col-span-2">
                             <input type="text" placeholder="Image URL (Provide any direct link to an image)" className="w-full border px-4 py-3 rounded-lg focus:ring-2 focus:ring-purple-700 outline-none transition" value={formData.image} onChange={e => setFormData({ ...formData, image: e.target.value })} />

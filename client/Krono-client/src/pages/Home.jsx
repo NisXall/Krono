@@ -98,7 +98,21 @@ const Home = () => {
             {loading ? (
                 <div className="text-center py-20 text-xl font-semibold text-purple-600">Loading events...</div>
             ) : events.length === 0 ? (
-                <div className="text-center py-20 text-xl text-purple-500">No events found matching your search.</div>
+                <div className="rounded-2xl border border-purple-100 bg-gradient-to-br from-purple-50 to-white py-16 px-6 text-center shadow-sm">
+                    <h3 className="text-3xl font-extrabold text-purple-900 mb-3">Welcome to Krono</h3>
+                    <p className="text-purple-600 max-w-2xl mx-auto mb-8">
+                        We are getting the next set of experiences ready for you. Check back soon, or clear your search to explore everything currently available.
+                    </p>
+                    {search.trim() && (
+                        <button
+                            type="button"
+                            onClick={() => setSearch('')}
+                            className="bg-purple-700 text-white font-semibold px-6 py-3 rounded-full hover:bg-purple-900 transition"
+                        >
+                            Clear Search
+                        </button>
+                    )}
+                </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {events.map(event => (

@@ -24,14 +24,17 @@ const eventSchema = new mongoose.Schema({
     totalSeats:{
         type:Number,
         required:true,
+        min: 1,
     },
     availableSeats:{
         type:Number,
         required:true,
+        min: 0,
     },
     ticketPrice:{
         type:Number,
         required:true,
+        min: 0,
     },
     imageUrl:{
         type:String,

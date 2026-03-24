@@ -4,6 +4,8 @@ const { Otp } = require('../models/OTP.js');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 const generateToken = (id,role) => {
     return jwt.sign({id,role}, process.env.JWT_SECRET, {expiresIn:'1d'});
 }
@@ -12,30 +14,38 @@ const generateToken = (id,role) => {
 exports.registerUser = async (req,res) => {
     const {name,email,password,role} = req.body;
 
-    let userExists = await User.findOne({email});
+    const normalizedEmail = (email || '').trim().toLowerCase();
+    if (!name || !normalizedEmail || !password) {
+        return res.status(400).json({ error: 'Name, email and password are required' });
+    }
+    if (!EMAIL_REGEX.test(normalizedEmail)) {
+        return res.status(400).json({ error: 'Please provide a valid email address' });
+    }
+
+    let userExists = await User.findOne({email: normalizedEmail});
     if(userExists && userExists.isVerified){
         return res.status(400).json({error:'user already exists'});
     }
 
     // If user exists but not verified, delete the old record and allow re-registration
     if(userExists && !userExists.isVerified){
-        await User.deleteOne({email});
-        await Otp.deleteMany({email});
+        await User.deleteOne({email: normalizedEmail});
+        await Otp.deleteMany({email: normalizedEmail});
     }
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password,salt);
     
     try{
-        const user = await User.create({name,email,password:hashedPassword, role:'user', isVerified: false});
+        const user = await User.create({name,email: normalizedEmail,password:hashedPassword, role:'user', isVerified: false});
 
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
         console.log(`\n============================`);
-        console.log(`==> OTP for ${email}: ${otp} <==`);
+        console.log(`==> OTP for ${normalizedEmail}: ${otp} <==`);
         console.log(`============================\n`);
 
-        await Otp.create({email, otp, action: 'account_verification'});
-        await sendOtpEmail(email, otp, 'account_verification');
+        await Otp.create({email: normalizedEmail, otp, action: 'account_verification'});
+        await sendOtpEmail(normalizedEmail, otp, 'account_verification');
 
         res.status(201).json({
             message:'User registered successfully. Please check your email for OTP to verify your account',
@@ -51,7 +61,15 @@ exports.registerUser = async (req,res) => {
 
 exports.loginUser = async (req,res) => {
     const {email,password} = req.body;
-    let user = await User.findOne({email});
+    const normalizedEmail = (email || '').trim().toLowerCase();
+    if (!normalizedEmail || !password) {
+        return res.status(400).json({ error: 'Email and password are required' });
+    }
+    if (!EMAIL_REGEX.test(normalizedEmail)) {
+        return res.status(400).json({ error: 'Please provide a valid email address' });
+    }
+
+    let user = await User.findOne({email: normalizedEmail});
     if(!user){
         return res.status(400).json({error:'Invalid credentials, Please sign up first'});
     }
@@ -63,12 +81,12 @@ exports.loginUser = async (req,res) => {
 
     if(!user.isVerified && user.role === 'user'){
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
-        await Otp.deleteMany({email, action: 'account_verification'});
+        await Otp.deleteMany({email: normalizedEmail, action: 'account_verification'});
         console.log(`\n============================`);
-        console.log(`==> OTP for ${email}: ${otp} <==`);
+        console.log(`==> OTP for ${normalizedEmail}: ${otp} <==`);
         console.log(`============================\n`);
-        await Otp.create({email, otp, action: 'account_verification'});
-        await sendOtpEmail(email, otp, 'account_verification');
+        await Otp.create({email: normalizedEmail, otp, action: 'account_verification'});
+        await sendOtpEmail(normalizedEmail, otp, 'account_verification');
         return res.status(400).json({error:'Account not verified. Please check your email for OTP to verify your account'});
     }
 
@@ -84,19 +102,30 @@ exports.loginUser = async (req,res) => {
 
 exports.verifyOtp = async (req,res) => {
     const {email, otp, action} = req.body;
+    const normalizedEmail = (email || '').trim().toLowerCase();
+
+    if (!normalizedEmail || !otp || !action) {
+        return res.status(400).json({ error: 'Email, OTP and action are required' });
+    }
+    if (!EMAIL_REGEX.test(normalizedEmail)) {
+        return res.status(400).json({ error: 'Please provide a valid email address' });
+    }
+    if (!/^\d{6}$/.test(String(otp).trim())) {
+        return res.status(400).json({ error: 'OTP must be a 6-digit code' });
+    }
     
     try {
-        const otpRecord = await Otp.findOne({email, otp, action});
+        const otpRecord = await Otp.findOne({email: normalizedEmail, otp: String(otp).trim(), action});
         if(!otpRecord){
             return res.status(400).json({error:'Invalid or expired OTP'});
         }
 
-        const user = await User.findOneAndUpdate({email}, {isVerified: true}, {new: true});
+        const user = await User.findOneAndUpdate({email: normalizedEmail}, {isVerified: true}, {new: true});
         if(!user) {
             return res.status(404).json({error:'User not found'});
         }
 
-        await Otp.deleteMany({email, action});
+        await Otp.deleteMany({email: normalizedEmail, action});
         
         res.json({
             message:'Account verified successfully. You can now log in.',
