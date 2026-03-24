@@ -41,10 +41,10 @@ const Home = () => {
                 <div className="relative p-10 md:p-20 text-center flex flex-col items-center z-10">
                     <span className="bg-white/20 text-white backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase mb-6 border border-white/20">Welcome to Krono</span>
                     <h1 className="text-5xl md:text-7xl font-black mb-6 leading-tight tracking-tight drop-shadow-lg">
-                        Find Your Next <br /><span className="text-transparent bg-clip-text bg-gradient-to-r from-gray-200 to-gray-500">Unforgettable</span> Experience
+                        Discover Your Next <br /><span className="text-transparent bg-clip-text bg-gradient-to-r from-gray-200 to-gray-500">Remarkable</span> Moment
                     </h1>
                     <p className="text-gray-300 text-lg md:text-xl mb-10 max-w-2xl mx-auto font-light leading-relaxed">
-                        Discover the best tech conferences, late-night music festivals, and hands-on workshops happening directly in your area. Secure your spot today.
+                        Explore top tech summits, after-dark music scenes, and interactive workshops happening right around you. Reserve your place in seconds.
                     </p>
 
                     <form onSubmit={handleSearchSubmit} className="w-full max-w-2xl mx-auto relative flex items-center shadow-2xl group gap-3">
@@ -58,7 +58,7 @@ const Home = () => {
                                 onChange={(e) => setSearch(e.target.value)}
                             />
                         </div>
-                        <button type="submit" className="bg-gray-900 text-white font-semibold px-5 py-4 rounded-full hover:bg-black transition">
+                        <button type="submit" className="bg-purple-600 text-white font-semibold px-5 py-4 rounded-full hover:bg-purple-700 transition">
                             Search
                         </button>
                     </form>
@@ -71,22 +71,22 @@ const Home = () => {
                     <div className="w-16 h-16 bg-purple-700 text-white rounded-2xl flex items-center justify-center text-2xl mb-6 shadow-md shadow-gray-200/50">
                         <FaRegClock />
                     </div>
-                    <h3 className="text-xl font-bold text-purple-900 mb-3">Fast Booking</h3>
-                    <p className="text-purple-500 text-sm leading-relaxed">Secure your tickets instantly with our fast streamlined booking infrastructure built for speed.</p>
+                    <h3 className="text-xl font-bold text-purple-900 mb-3">Quick Reservations</h3>
+                    <p className="text-purple-500 text-sm leading-relaxed">Claim your seats in moments with a smooth, high-performance checkout designed for zero friction.</p>
                 </div>
                 <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center text-center hover:-translate-y-1 transition duration-300">
                     <div className="w-16 h-16 bg-purple-700 text-white rounded-2xl flex items-center justify-center text-2xl mb-6 shadow-md shadow-gray-200/50">
                         <FaTicketAlt />
                     </div>
-                    <h3 className="text-xl font-bold text-purple-900 mb-3">Seamless Access</h3>
-                    <p className="text-purple-500 text-sm leading-relaxed">Download tickets instantly or manage them right from your personal dashboard with easily.</p>
+                    <h3 className="text-xl font-bold text-purple-900 mb-3">Effortless Entry</h3>
+                    <p className="text-purple-500 text-sm leading-relaxed">Get your passes right away and keep everything organized from one simple personal dashboard.</p>
                 </div>
                 <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center text-center hover:-translate-y-1 transition duration-300">
                     <div className="w-16 h-16 bg-purple-700 text-white rounded-2xl flex items-center justify-center text-2xl mb-6 shadow-md shadow-gray-200/50">
                         <FaShieldAlt />
                     </div>
-                    <h3 className="text-xl font-bold text-purple-900 mb-3">Secure Platform</h3>
-                    <p className="text-purple-500 text-sm leading-relaxed">All transactions and registrations are bounded by cutting-edge security and 2FA OTP tech.</p>
+                    <h3 className="text-xl font-bold text-purple-900 mb-3">Trusted Security</h3>
+                    <p className="text-purple-500 text-sm leading-relaxed">Every payment and signup is protected with modern safeguards, including encrypted flows and OTP verification.</p>
                 </div>
             </div>
 
@@ -164,7 +164,7 @@ const Home = () => {
                     <span className="text-xl font-bold text-purple-900">Krono</span>
                 </div>
                 <p className="text-purple-500 text-sm mb-6 max-w-md mx-auto">
-                    The simplest, most dynamic way to manage, discover, and host world-class events in your local city. Let's make memories together.
+                    The easiest, most vibrant way to plan, find, and host standout events across your city. Create unforgettable moments together.
                 </p>
                 <div className="text-xs text-gray-400 font-medium uppercase tracking-wider">
                     &copy; {new Date().getFullYear()} Krono Platform. All rights reserved.
