@@ -15,7 +15,8 @@ const EventDetail = () => {
     const [otp, setOtp] = useState('');
     const [showOTP, setShowOTP] = useState(false);
     const [bookingId, setBookingId] = useState('');
-    const [paymentAmount, setPaymentAmount] = useState('');
+    const [numberOfTickets, setNumberOfTickets] = useState(1);
+    const [bookingAmount, setBookingAmount] = useState(0);
     const [paymentDone, setPaymentDone] = useState(false);
     const [error, setError] = useState('');
     const [successMsg, setSuccessMsg] = useState('');
@@ -45,7 +46,7 @@ const EventDetail = () => {
         setSuccessMsg('');
 
         try {
-            const { data } = await api.post('/booking/send-otp', { eventId: event._id });
+            const { data } = await api.post('/booking/send-otp', { eventId: event._id, numberOfTickets });
             setShowOTP(true);
             if (data.otp) {
                 setSuccessMsg(`OTP: ${data.otp} (displayed for demo. Normally sent via email). Enter it below to create your booking.`);
@@ -74,12 +75,12 @@ const EventDetail = () => {
         setSuccessMsg('');
 
         try {
-            const { data } = await api.post('/booking', { eventId: event._id, otp });
+            const { data } = await api.post('/booking', { eventId: event._id, otp, numberOfTickets });
             setBookingId(data.bookingId);
-            setPaymentAmount(String(event.ticketPrice));
+            setBookingAmount(data.booking?.amount ?? (event.ticketPrice * numberOfTickets));
             setShowOTP(false);
             setOtp('');
-            setSuccessMsg('Booking created. Enter payment amount and pay to move this request for admin verification.');
+            setSuccessMsg('Booking created. Pay the exact amount to move this request for admin verification.');
         } catch (err) {
             setError(err.response?.data?.error || err.response?.data?.message || 'Booking failed');
         } finally {
@@ -94,7 +95,7 @@ const EventDetail = () => {
         setError('');
 
         try {
-            const { data } = await api.put(`/booking/${bookingId}/pay`, { paymentAmount: Number(paymentAmount) });
+            const { data } = await api.put(`/booking/${bookingId}/pay`, { paymentAmount: Number(bookingAmount) });
             setPaymentDone(true);
             setSuccessMsg(data.message || 'Payment successful. Waiting for admin verification.');
         } catch (err) {
@@ -108,6 +109,7 @@ const EventDetail = () => {
     if (error && !event) return <div className="text-center py-20 text-xl text-red-500">{error || 'Event not found'}</div>;
 
     const isSoldOut = event.availableSeats <= 0;
+    const maxBookableTickets = Math.min(5, Math.max(event.availableSeats, 1));
 
     return (
         <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden mt-8">
@@ -121,7 +123,7 @@ const EventDetail = () => {
 
             <div className="p-8 md:p-12">
                 <div className="flex flex-col md:flex-row justify-between items-start mb-8 gap-6">
-                    <div>
+                    <div className="min-w-0 flex-1">
                         <div className="inline-block bg-gray-200 text-gray-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide mb-3">
                             {event.category}
                         </div>
@@ -129,7 +131,7 @@ const EventDetail = () => {
                         <p className="text-purple-600 text-lg leading-relaxed mb-6">{event.description}</p>
                     </div>
 
-                    <div className="bg-gray-50 p-6 rounded-xl border border-gray-100 min-w-[300px] w-full md:w-auto shrink-0 shadow-sm">
+                    <div className="bg-gray-50 p-6 rounded-xl border border-gray-100 w-full md:max-w-[360px] md:flex-shrink-0 shadow-sm overflow-hidden">
                         <h3 className="text-xl font-bold text-gray-800 mb-6">Booking Details</h3>
 
                         <div className="space-y-4 mb-8">
@@ -191,10 +193,32 @@ const EventDetail = () => {
                             </div>
                         )}
 
+                        {!bookingId && (
+                            <div className="mb-4">
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">Number of Tickets (max 5)</label>
+                                <input
+                                    type="number"
+                                    min="1"
+                                    max={maxBookableTickets}
+                                    step="1"
+                                    value={numberOfTickets}
+                                    onChange={(e) => {
+                                        const parsed = Number(e.target.value);
+                                        if (!Number.isInteger(parsed)) return;
+                                        const clamped = Math.min(maxBookableTickets, Math.max(1, parsed));
+                                        setNumberOfTickets(clamped);
+                                    }}
+                                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-purple-700 transition shadow-sm"
+                                    disabled={isSoldOut || showOTP}
+                                />
+                                <p className="text-xs text-gray-500 mt-1">Total payable: {event.ticketPrice === 0 ? 'Free' : `₹${event.ticketPrice * numberOfTickets}`}</p>
+                            </div>
+                        )}
+
                         {!showOTP && !bookingId && (
                             <button
                                 onClick={handleSendBookingOtp}
-                                disabled={isSoldOut || bookingLoading}
+                                disabled={isSoldOut || bookingLoading || numberOfTickets > event.availableSeats}
                                 className={`w-full py-4 px-6 rounded-xl font-bold text-lg transition shadow-lg ${isSoldOut
                                     ? 'bg-gray-300 text-purple-500 cursor-not-allowed'
                                     : 'bg-purple-700 hover:bg-purple-900 text-white hover:shadow-xl hover:-translate-y-1'
@@ -216,28 +240,20 @@ const EventDetail = () => {
 
                         {bookingId && (
                             <div className="space-y-3">
-                                <label className="block text-sm font-semibold text-gray-700 mb-1">Payment Amount</label>
-                                <input
-                                    type="number"
-                                    min={event.ticketPrice}
-                                    step="1"
-                                    value={paymentAmount}
-                                    onChange={(e) => setPaymentAmount(e.target.value)}
-                                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-purple-700 transition shadow-sm"
-                                    placeholder={`Enter at least ₹${event.ticketPrice}`}
-                                />
+                                <p className="text-sm text-gray-700"><span className="font-semibold">Tickets:</span> {numberOfTickets}</p>
+                                <p className="text-sm text-gray-700"><span className="font-semibold">Amount to pay:</span> {bookingAmount === 0 ? 'Free' : `₹${bookingAmount}`}</p>
                                 <button
                                     onClick={handlePayBooking}
-                                    disabled={paymentLoading || paymentDone || Number(paymentAmount) < event.ticketPrice}
+                                    disabled={paymentLoading || paymentDone}
                                     className="w-full py-4 px-6 rounded-xl font-bold text-lg transition shadow-lg bg-green-600 hover:bg-green-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {paymentLoading ? 'Processing Payment...' : paymentDone ? 'Paid - Waiting Verification' : 'Pay Now'}
                                 </button>
-                                <p className="text-xs text-gray-500 text-center">You cannot pay below the event amount.</p>
+                                <p className="text-xs text-gray-500 text-center">Exact amount payment only.</p>
                             </div>
                         )}
-                        {error && <p className="text-red-500 mt-4 text-center font-medium bg-red-50 p-2 rounded">{error}</p>}
-                        {successMsg && <p className="text-green-600 mt-4 text-center font-medium bg-green-50 p-2 rounded">{successMsg}</p>}
+                        {error && <p className="text-red-500 mt-4 text-center font-medium bg-red-50 p-2 rounded break-words whitespace-normal">{error}</p>}
+                        {successMsg && <p className="text-green-600 mt-4 text-center font-medium bg-green-50 p-2 rounded break-words whitespace-normal">{successMsg}</p>}
                     </div>
                 </div>
             </div>

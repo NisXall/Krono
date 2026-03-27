@@ -41,12 +41,12 @@ const UserDashboard = () => {
     };
 
     const payBooking = async (booking) => {
-        const paymentAmountInput = window.prompt(`Enter amount to pay (minimum ${booking.amount})`, String(booking.amount));
-        if (paymentAmountInput === null) return;
+        const shouldPay = window.confirm(`Pay exact amount ${booking.amount === 0 ? 'Free' : `₹${booking.amount}`} for this booking?`);
+        if (!shouldPay) return;
 
-        const paymentAmount = Number(paymentAmountInput);
-        if (!Number.isFinite(paymentAmount) || paymentAmount < booking.amount) {
-            alert(`Please enter a valid amount greater than or equal to ${booking.amount}`);
+        const paymentAmount = Number(booking.amount);
+        if (!Number.isFinite(paymentAmount)) {
+            alert('Invalid booking amount. Please contact support.');
             return;
         }
 
@@ -116,6 +116,7 @@ const UserDashboard = () => {
                                         </div>
                                         <div className="text-sm text-purple-500 mb-4 space-y-1">
                                             <p><strong className="text-gray-700">Date:</strong> {new Date(booking.eventId.date).toLocaleDateString()}</p>
+                                            <p><strong className="text-gray-700">Tickets:</strong> {booking.numberOfTickets || 1}</p>
                                             <p><strong className="text-gray-700">Amount:</strong> {booking.amount === 0 ? 'Free' : `₹${booking.amount}`}</p>
                                             <p><strong className="text-gray-700">Requested:</strong> {new Date(booking.createdAt).toLocaleDateString()}</p>
                                         </div>

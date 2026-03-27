@@ -5,6 +5,8 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PASSWORD_REGEX = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+const PASSWORD_RULE_MESSAGE = 'Password must be at least 8 characters and include one uppercase letter, one number, and one special character';
 
 const generateToken = (id,role) => {
     return jwt.sign({id,role}, process.env.JWT_SECRET, {expiresIn:'1d'});
@@ -12,7 +14,7 @@ const generateToken = (id,role) => {
 
 
 exports.registerUser = async (req,res) => {
-    const {name,email,password,role} = req.body;
+    const {name,email,password} = req.body;
 
     const normalizedEmail = (email || '').trim().toLowerCase();
     if (!name || !normalizedEmail || !password) {
@@ -20,6 +22,9 @@ exports.registerUser = async (req,res) => {
     }
     if (!EMAIL_REGEX.test(normalizedEmail)) {
         return res.status(400).json({ error: 'Please provide a valid email address' });
+    }
+    if (!PASSWORD_REGEX.test(password)) {
+        return res.status(400).json({ error: PASSWORD_RULE_MESSAGE });
     }
 
     let userExists = await User.findOne({email: normalizedEmail});

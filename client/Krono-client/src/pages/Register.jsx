@@ -2,6 +2,8 @@ import React, { useState, useContext } from 'react';
 import { AuthContext } from '../context/authcontext';
 import { useNavigate, Link } from 'react-router-dom';
 
+const PASSWORD_PATTERN = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+
 const Register = () => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
@@ -16,6 +18,10 @@ const Register = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!showOTP && !PASSWORD_PATTERN.test(password)) {
+            setError('Password must be at least 8 characters and include one uppercase letter, one number, and one special character');
+            return;
+        }
         setLoading(true);
         setError('');
         try {
@@ -71,10 +77,15 @@ const Register = () => {
                             <input
                                 type="password"
                                 required
+                                pattern="(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}"
+                                title="At least 8 characters, including one uppercase letter, one number, and one special character"
                                 className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-700 transition shadow-sm"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                             />
+                            <p className="text-xs text-gray-500 mt-1">
+                                Use at least 8 characters with one uppercase letter, one number, and one special character.
+                            </p>
                         </div>
                     </>
                 ) : (

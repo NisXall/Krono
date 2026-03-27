@@ -10,10 +10,23 @@ const generateOtp = () => {
 
 exports.sendBookingOtp = async (req, res) => {
     try {
-        const { eventId } = req.body;
+        const { eventId, numberOfTickets } = req.body;
         
         if (!eventId) {
             return res.status(400).json({ error: 'Event ID is required' });
+        }
+
+        const parsedTickets = Number(numberOfTickets);
+        if (!Number.isInteger(parsedTickets) || parsedTickets < 1 || parsedTickets > 5) {
+            return res.status(400).json({ error: 'You can book between 1 and 5 tickets in one booking' });
+        }
+
+        const event = await Event.findById(eventId);
+        if (!event) {
+            return res.status(404).json({ error: 'Event not found' });
+        }
+        if (event.availableSeats < parsedTickets) {
+            return res.status(400).json({ error: `Only ${event.availableSeats} seats available for this event` });
         }
 
         // Check if user already has a booking for this event
@@ -42,11 +55,16 @@ exports.sendBookingOtp = async (req, res) => {
 
 exports.bookEvent = async (req, res) => {
     try {
-        const { eventId, otp } = req.body;
+        const { eventId, otp, numberOfTickets } = req.body;
         console.log(req.body);
         const otpRecord = await Otp.findOne({ email: req.user.email, otp, action: 'event_booking' });
         if (!otpRecord) {
             return res.status(400).json({ error: 'Invalid or expired OTP' });
+        }
+
+        const parsedTickets = Number(numberOfTickets);
+        if (!Number.isInteger(parsedTickets) || parsedTickets < 1 || parsedTickets > 5) {
+            return res.status(400).json({ error: 'You can book between 1 and 5 tickets in one booking' });
         }
 
         const event = await Event.findById(eventId);
@@ -54,8 +72,8 @@ exports.bookEvent = async (req, res) => {
             return res.status(404).json({ error: 'Event not found' });
         }
 
-        if (event.availableSeats <= 0) {
-            return res.status(400).json({ error: 'No seats available for this event' });
+        if (event.availableSeats < parsedTickets) {
+            return res.status(400).json({ error: `Only ${event.availableSeats} seats available for this event` });
         }
 
         const existingBooking = await Booking.findOne({ userId: req.user._id, eventId });
@@ -66,7 +84,8 @@ exports.bookEvent = async (req, res) => {
         const booking = await Booking.create({
             userId: req.user._id,
             eventId,
-            amount: event.ticketPrice,
+            numberOfTickets: parsedTickets,
+            amount: event.ticketPrice * parsedTickets,
             status: 'pending',
             paymentStatus: 'not_paid',
         });
@@ -113,8 +132,8 @@ exports.processBookingPayment = async (req, res) => {
             return res.status(400).json({ error: 'Please enter a valid payment amount' });
         }
 
-        if (parsedAmount < booking.amount) {
-            return res.status(400).json({ error: `Amount must be at least ${booking.amount}` });
+        if (parsedAmount !== booking.amount) {
+            return res.status(400).json({ error: `Amount must be exactly ${booking.amount}` });
         }
 
         booking.paymentStatus = 'paid';
@@ -144,14 +163,15 @@ exports.confirmBooking = async (req, res) => {
         if (!event) {
             return res.status(404).json({ error: 'Event not found' });
         }
-        if (event.availableSeats <= 0) {
-            return res.status(400).json({ error: 'No seats available for this event' });
+        const ticketCount = booking.numberOfTickets || 1;
+        if (event.availableSeats < ticketCount) {
+            return res.status(400).json({ error: `Only ${event.availableSeats} seats available for this event` });
         }
 
         booking.status = 'confirmed';
         await booking.save();
 
-        event.availableSeats -= 1;
+        event.availableSeats -= ticketCount;
         await event.save();
 
         const bookingOwnerEmail = booking.userId?.email || req.user.email;
@@ -197,7 +217,7 @@ exports.cancelBooking = async (req, res) => {
         if (booking.status === 'confirmed') {
             const event = await Event.findById(booking.eventId);
             if (event) {
-                event.availableSeats += 1;
+                event.availableSeats += booking.numberOfTickets || 1;
                 await event.save();
             }
         }

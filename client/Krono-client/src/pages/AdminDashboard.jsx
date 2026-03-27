@@ -214,6 +214,10 @@ const AdminDashboard = () => {
                                                 <span className={`font-semibold ${booking.amount === 0 ? 'text-green-600' : ''}`}>{booking.amount === 0 ? 'Free' : `₹${booking.amount}`}</span>
                                             </p>
                                             <p className="text-gray-700 flex items-center gap-2 mb-1">
+                                                <span className="font-bold w-16 text-purple-500 uppercase text-xs">Tickets:</span>
+                                                <span className="font-semibold">{booking.numberOfTickets || 1}</span>
+                                            </p>
+                                            <p className="text-gray-700 flex items-center gap-2 mb-1">
                                                 <span className="font-bold w-16 text-purple-500 uppercase text-xs">Date:</span>
                                                 <span>{new Date(booking.createdAt).toLocaleString()}</span>
                                             </p>

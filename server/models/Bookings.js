@@ -11,10 +11,13 @@ const bookingSchema = new mongoose.Schema({
         ref: 'Event',
         required: true,
     },
-    // numberOfTickets: {
-    //     type: Number,
-    //     required: true,
-    // },
+    numberOfTickets: {
+        type: Number,
+        required: true,
+        min: 1,
+        max: 5,
+        default: 1,
+    },
     status: {
         type: String,
         enum: ['pending', 'confirmed', 'cancelled'],
