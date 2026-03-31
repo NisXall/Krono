@@ -23,6 +23,10 @@ const getOtpHtmlTemplate = (otp, type) => {
             message = 'You are booking an event with Krono. Please use the OTP below to confirm your booking.';
             subject = 'Confirm Your Krono Event Booking';
             break;
+        case 'password_reset':
+            message = 'We received a request to reset your Krono account password. Please use the OTP below to reset your password.';
+            subject = 'Reset Your Krono Account Password';
+            break;
         default:
             message = 'Please verify using the OTP below.';
             break;
@@ -120,6 +124,8 @@ const getSubject = (type) => {
             return 'Verify Your Krono Account';
         case 'event_booking':
             return 'Confirm Your Krono Event Booking';
+        case 'password_reset':
+            return 'Reset Your Krono Account Password';
         default:
             return 'Your OTP Code';
     }

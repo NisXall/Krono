@@ -61,7 +61,7 @@ exports.createEvent = async (req, res) => {
         const parsedTicketPrice = Number(ticketPrice);
         const parsedDate = new Date(date);
 
-        if (!title || !description || !location || !category || !imageUrl) {
+        if (!title || !description || !location || !category) {
             return res.status(400).json({ message: 'All required event fields must be provided' });
         }
         if (!Number.isInteger(parsedTotalSeats) || parsedTotalSeats <= 0) {

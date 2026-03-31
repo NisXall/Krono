@@ -14,17 +14,20 @@ const generateToken = (id,role) => {
 
 
 exports.registerUser = async (req,res) => {
-    const {name,email,password} = req.body;
+    const {name,email,password,confirmPassword} = req.body;
 
     const normalizedEmail = (email || '').trim().toLowerCase();
-    if (!name || !normalizedEmail || !password) {
-        return res.status(400).json({ error: 'Name, email and password are required' });
+    if (!name || !normalizedEmail || !password || !confirmPassword) {
+        return res.status(400).json({ error: 'Name, email, password and confirm password are required' });
     }
     if (!EMAIL_REGEX.test(normalizedEmail)) {
         return res.status(400).json({ error: 'Please provide a valid email address' });
     }
     if (!PASSWORD_REGEX.test(password)) {
         return res.status(400).json({ error: PASSWORD_RULE_MESSAGE });
+    }
+    if (password !== confirmPassword) {
+        return res.status(400).json({ error: 'Passwords do not match' });
     }
 
     let userExists = await User.findOne({email: normalizedEmail});
@@ -54,7 +57,7 @@ exports.registerUser = async (req,res) => {
 
         res.status(201).json({
             message:'User registered successfully. Please check your email for OTP to verify your account',
-             email: user.email
+            email: user.email
         });
 
     }catch(error){
@@ -92,7 +95,7 @@ exports.loginUser = async (req,res) => {
         console.log(`============================\n`);
         await Otp.create({email: normalizedEmail, otp, action: 'account_verification'});
         await sendOtpEmail(normalizedEmail, otp, 'account_verification');
-        return res.status(400).json({error:'Account not verified. Please check your email for OTP to verify your account'});
+        return res.status(400).json({error:'Account not verified. Please verify your account'});
     }
 
     res.json({
@@ -143,6 +146,103 @@ exports.verifyOtp = async (req,res) => {
     } catch(error) {
         console.error('OTP verification error:', error);
         res.status(500).json({error: error.message || 'Error verifying OTP'});
+    }
+};
+
+exports.forgetPassword = async (req,res) => {
+    const {email} = req.body;
+    const normalizedEmail = (email || '').trim().toLowerCase();
+
+    if (!normalizedEmail) {
+        return res.status(400).json({ error: 'Email is required' });
+    }
+    if (!EMAIL_REGEX.test(normalizedEmail)) {
+        return res.status(400).json({ error: 'Please provide a valid email address' });
+    }
+
+    try {
+        const user = await User.findOne({email: normalizedEmail});
+        if (!user) {
+            return res.status(404).json({error:'User not found'});
+        }
+
+        // Delete any existing password reset OTPs
+        await Otp.deleteMany({email: normalizedEmail, action: 'password_reset'});
+
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        console.log(`\n============================`);
+        console.log(`==> OTP for ${normalizedEmail}: ${otp} <==`);
+        console.log(`============================\n`);
+
+        await Otp.create({email: normalizedEmail, otp, action: 'password_reset'});
+        await sendOtpEmail(normalizedEmail, otp, 'password_reset');
+
+        res.json({
+            message:'OTP sent to your email. Please check your inbox.',
+            email: normalizedEmail
+        });
+
+    } catch(error) {
+        console.error('Forget password error:', error);
+        res.status(500).json({error: error.message || 'Error processing password reset request'});
+    }
+};
+
+exports.resetPassword = async (req,res) => {
+    const {email, otp, newPassword, confirmPassword} = req.body;
+    const normalizedEmail = (email || '').trim().toLowerCase();
+
+    if (!normalizedEmail || !otp || !newPassword || !confirmPassword) {
+        return res.status(400).json({ error: 'Email, OTP, new password and confirm password are required' });
+    }
+    if (!EMAIL_REGEX.test(normalizedEmail)) {
+        return res.status(400).json({ error: 'Please provide a valid email address' });
+    }
+    if (!/^\d{6}$/.test(String(otp).trim())) {
+        return res.status(400).json({ error: 'OTP must be a 6-digit code' });
+    }
+    if (!PASSWORD_REGEX.test(newPassword)) {
+        return res.status(400).json({ error: PASSWORD_RULE_MESSAGE });
+    }
+    if (newPassword !== confirmPassword) {
+        return res.status(400).json({ error: 'Passwords do not match' });
+    }
+
+    try {
+        const otpRecord = await Otp.findOne({email: normalizedEmail, otp: String(otp).trim(), action: 'password_reset'});
+        if(!otpRecord){
+            return res.status(400).json({error:'Invalid or expired OTP'});
+        }
+
+        const user = await User.findOne({email: normalizedEmail});
+        if(!user) {
+            return res.status(404).json({error:'User not found'});
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+        user.password = hashedPassword;
+        await user.save();
+
+        await Otp.deleteMany({email: normalizedEmail, action: 'password_reset'});
+
+        res.json({
+            message:'Password reset successfully. You can now log in with your new password.'
+        });
+
+    } catch(error) {
+        console.error('Reset password error:', error);
+        res.status(500).json({error: error.message || 'Error resetting password'});
+    }
+};
+
+exports.logoutUser = async (req,res) => {
+    try {
+        res.json({message:'Logged out successfully'});
+    } catch(error) {
+        console.error('Logout error:', error);
+        res.status(500).json({error: error.message || 'Error logging out'});
     }
 };
 

@@ -32,6 +32,8 @@ export default [
       'react-hooks/set-state-in-effect': 'off',
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
       'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      'no-negated-condition': 'off',
+      'jsx-a11y/label-has-associated-control': 'off',
     },
   },
 ];

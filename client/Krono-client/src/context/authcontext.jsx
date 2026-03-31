@@ -23,15 +23,19 @@ export const AuthProvider = ({ children }) => {
             localStorage.setItem('token', data.token);
             return data;
         } catch (error) {
-            if (error.response?.data?.needsVerification) throw error.response.data;
+            if (error.response?.data?.error?.includes('Account not verified')) {
+                const err = new Error('Account not verified. A new OTP has been sent to your email.');
+                err.needsVerification = true;
+                throw err;
+            }
             throw error.response?.data?.error || error.response?.data?.message || 'Login failed';
         }
     };
 
-    const register = async (name, email, password) => {
+    const register = async (name, email, password, confirmPassword) => {
         try {
-            const { data } = await api.post('/auth/register', { name, email, password });
-            return data; // Returns { message, email }
+            const { data } = await api.post('/auth/register', { name, email, password, confirmPassword });
+            return data;
         } catch (error) {
             throw error.response?.data?.error || error.response?.data?.message || 'Registration failed';
         }
@@ -49,15 +53,40 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const logout = () => {
-        setUser(null);
-        localStorage.removeItem('userInfo');
-        localStorage.removeItem('token');
+    const forgetPassword = async (email) => {
+        try {
+            const { data } = await api.post('/auth/forget-password', { email });
+            return data;
+        } catch (error) {
+            throw error.response?.data?.error || error.response?.data?.message || 'Error sending OTP';
+        }
+    };
+
+    const resetPassword = async (email, otp, newPassword, confirmPassword) => {
+        try {
+            const { data } = await api.post('/auth/reset-password', { email, otp, newPassword, confirmPassword });
+            return data;
+        } catch (error) {
+            throw error.response?.data?.error || error.response?.data?.message || 'Error resetting password';
+        }
+    };
+
+    const logout = async () => {
+        try {
+            await api.post('/auth/logout');
+        } catch (error) {
+            console.error('Logout error:', error);
+        } finally {
+            setUser(null);
+            localStorage.removeItem('userInfo');
+            localStorage.removeItem('token');
+        }
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, register, verifyOTP, logout, loading }}>
+        <AuthContext.Provider value={{ user, login, register, verifyOTP, forgetPassword, resetPassword, logout, loading }}>
             {!loading && children}
         </AuthContext.Provider>
     );
 };
+
