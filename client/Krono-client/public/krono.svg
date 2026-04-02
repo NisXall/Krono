@@ -1,0 +1,56 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Krono logo</title>
+  <desc id="desc">A purple clock-inspired logo for Krono</desc>
+  <defs>
+    <linearGradient id="bg" x1="96" y1="64" x2="416" y2="448" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2A0E4F" />
+      <stop offset="1" stop-color="#12061F" />
+    </linearGradient>
+    <linearGradient id="ring" x1="156" y1="128" x2="356" y2="384" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F2A7FF" />
+      <stop offset="0.45" stop-color="#B85CFF" />
+      <stop offset="1" stop-color="#5E1EA6" />
+    </linearGradient>
+    <linearGradient id="face" x1="176" y1="150" x2="340" y2="356" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#31104D" />
+      <stop offset="1" stop-color="#170824" />
+    </linearGradient>
+    <linearGradient id="k" x1="198" y1="174" x2="320" y2="338" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF" />
+      <stop offset="1" stop-color="#D7B0FF" />
+    </linearGradient>
+    <filter id="shadow" x="0" y="0" width="512" height="512" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix" />
+      <feColorMatrix in="SourceAlpha" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha" />
+      <feOffset dy="12" />
+      <feGaussianBlur stdDeviation="18" />
+      <feComposite in2="hardAlpha" operator="out" />
+      <feColorMatrix values="0 0 0 0 0.16 0 0 0 0 0.05 0 0 0 0 0.28 0 0 0 0.55 0" />
+      <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_1_1" />
+      <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_1_1" result="shape" />
+    </filter>
+    <filter id="glow" x="104" y="104" width="304" height="304" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feColorMatrix in="blur" values="0 0 0 0 0.77 0 0 0 0 0.34 0 0 0 0 1 0 0 0 0.7 0" />
+    </filter>
+  </defs>
+  <g filter="url(#shadow)">
+    <rect x="56" y="56" width="400" height="400" rx="108" fill="url(#bg)" />
+    <rect x="56" y="56" width="400" height="400" rx="108" fill="white" fill-opacity="0.03" />
+    <path d="M176 140C176 121.222 191.222 106 210 106H302C320.778 106 336 121.222 336 140V172H176V140Z" fill="white" fill-opacity="0.05" />
+    <g filter="url(#glow)" opacity="0.95">
+      <circle cx="256" cy="242" r="132" fill="#C25CFF" fill-opacity="0.14" />
+    </g>
+    <circle cx="256" cy="242" r="118" fill="url(#face)" stroke="url(#ring)" stroke-width="18" />
+    <circle cx="256" cy="242" r="88" fill="#170824" stroke="#F2C9FF" stroke-opacity="0.14" stroke-width="2" />
+    <circle cx="256" cy="242" r="6" fill="#F8E6FF" />
+    <path d="M256 242V180" stroke="url(#ring)" stroke-width="16" stroke-linecap="round" />
+    <path d="M256 242L308 198" stroke="url(#ring)" stroke-width="16" stroke-linecap="round" />
+    <path d="M256 242L256 256" stroke="#F8E6FF" stroke-width="12" stroke-linecap="round" opacity="0.85" />
+    <path d="M196 190H218V272L274 190H298L241 253L301 314H276L220 256V314H196V190Z" fill="url(#k)" />
+    <circle cx="368" cy="154" r="6" fill="#FFD6FF" />
+    <circle cx="388" cy="174" r="3" fill="#FFD6FF" opacity="0.7" />
+    <circle cx="146" cy="334" r="4" fill="#FFD6FF" opacity="0.65" />
+    <circle cx="128" cy="150" r="3" fill="#FFD6FF" opacity="0.55" />
+  </g>
+</svg>

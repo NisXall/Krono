@@ -36,7 +36,7 @@ const ForgotPassword = () => {
 
     const handleVerifyOtp = async (e) => {
         e.preventDefault();
-        if (!otp || otp.length !== 6) {
+        if (!otp?.length || otp.length !== 6) {
             setError('Please enter a valid 6-digit OTP');
             return;
         }
@@ -88,8 +88,9 @@ const ForgotPassword = () => {
             {step === 1 && (
                 <form onSubmit={handleRequestOtp} className="space-y-5">
                     <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">Email Address</label>
+                        <label htmlFor="forgot-email" className="block text-sm font-semibold text-gray-700 mb-2">Email Address</label>
                         <input
+                            id="forgot-email"
                             type="email"
                             required
                             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-700 transition shadow-sm"
@@ -117,15 +118,16 @@ const ForgotPassword = () => {
                         </p>
                     </div>
                     <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">Verification Code (OTP)</label>
+                        <label htmlFor="forgot-otp" className="block text-sm font-semibold text-gray-700 mb-2">Verification Code (OTP)</label>
                         <input
+                            id="forgot-otp"
                             type="text"
                             required
                             maxLength="6"
                             placeholder="6-digit code"
                             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-700 transition shadow-sm font-bold tracking-widest text-center text-lg"
                             value={otp}
-                            onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                            onChange={(e) => setOtp(e.target.value.replaceAll(/\D/g, '').slice(0, 6))}
                         />
                     </div>
                     <button
@@ -154,8 +156,9 @@ const ForgotPassword = () => {
                         </p>
                     </div>
                     <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">New Password</label>
+                        <label htmlFor="new-password" className="block text-sm font-semibold text-gray-700 mb-2">New Password</label>
                         <input
+                            id="new-password"
                             type="password"
                             required
                             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-700 transition shadow-sm"
@@ -167,8 +170,9 @@ const ForgotPassword = () => {
                         </p>
                     </div>
                     <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">Confirm Password</label>
+                        <label htmlFor="confirm-password" className="block text-sm font-semibold text-gray-700 mb-2">Confirm Password</label>
                         <input
+                            id="confirm-password"
                             type="password"
                             required
                             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-700 transition shadow-sm"

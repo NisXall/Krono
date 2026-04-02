@@ -1,7 +1,7 @@
 import React, { useContext, useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/authcontext';
-import { FaTicketAlt, FaUserCircle, FaSignOutAlt } from 'react-icons/fa';
+import { FaUserCircle, FaSignOutAlt } from 'react-icons/fa';
 
 const Navbar = () => {
     const { user, logout } = useContext(AuthContext);
@@ -30,8 +30,11 @@ const Navbar = () => {
         <nav className="bg-purple-700 shadow-lg relative">
             <div className="container mx-auto px-4">
                 <div className="flex flex-col md:flex-row justify-between items-center py-4 gap-4">
-                    <Link to="/" className="text-white text-2xl font-bold flex items-center gap-2">
-                        <FaTicketAlt /> Krono
+                    <Link to="/" className="text-white text-2xl font-bold flex items-center gap-3">
+                        <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 p-1.5 ring-1 ring-white/15 shadow-[0_0_24px_rgba(196,102,255,0.28)] backdrop-blur-sm">
+                            <img src="/krono.svg" alt="Krono Logo" className="h-full w-full object-contain" />
+                        </span>
+                        <span className="tracking-wide">Krono</span>
                     </Link>
                     <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
                         <Link to="/" className="text-gray-200 hover:text-white transition cursor-pointer">Events</Link>

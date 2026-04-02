@@ -7,6 +7,7 @@ const Home = () => {
     const [events, setEvents] = useState([]);
     const [search, setSearch] = useState('');
     const [loading, setLoading] = useState(true);
+    const [showPastEvents, setShowPastEvents] = useState(false);
 
     useEffect(() => {
         const timeoutId = setTimeout(() => {
@@ -31,6 +32,14 @@ const Home = () => {
             setLoading(false);
         }
     };
+
+    // Filter events based on date
+    const now = new Date();
+    const upcomingEvents = events.filter(event => new Date(event.date) >= now);
+    const pastEvents = events.filter(event => new Date(event.date) < now);
+
+    // Display either upcoming or past events based on toggle
+    const displayedEvents = showPastEvents ? pastEvents : upcomingEvents;
 
     return (
         <div className="flex flex-col min-h-screen">
@@ -91,31 +100,63 @@ const Home = () => {
             </div>
 
             <div className="flex items-center justify-between mb-8 px-2 border-b border-gray-200 pb-4">
-                <h2 className="text-3xl font-extrabold text-purple-900">Upcoming Events</h2>
-                <div className="text-purple-500 font-medium">{events.length} results found</div>
+                <div>
+                    <h2 className="text-3xl font-extrabold text-purple-900">
+                        {showPastEvents ? 'Past Events' : 'Upcoming Events'}
+                    </h2>
+                </div>
+                <div className="flex items-center gap-4">
+                    <div className="text-purple-500 font-medium">{displayedEvents.length} results found</div>
+                    <button
+                        onClick={() => setShowPastEvents(!showPastEvents)}
+                        className={`px-4 py-2 rounded-lg font-semibold transition ${
+                            showPastEvents
+                                ? 'bg-purple-700 text-white hover:bg-purple-900'
+                                : 'bg-gray-200 text-purple-900 hover:bg-gray-300'
+                        }`}
+                    >
+                        {showPastEvents ? 'View Upcoming' : 'Browse Past Events'}
+                    </button>
+                </div>
             </div>
 
+            {/* eslint-disable-next-line no-nested-ternary */}
             {loading ? (
                 <div className="text-center py-20 text-xl font-semibold text-purple-600">Loading events...</div>
-            ) : events.length === 0 ? (
+            ) : displayedEvents.length === 0 ? (
                 <div className="rounded-2xl border border-purple-100 bg-gradient-to-br from-purple-50 to-white py-16 px-6 text-center shadow-sm">
-                    <h3 className="text-3xl font-extrabold text-purple-900 mb-3">Welcome to Krono</h3>
+                    <h3 className="text-3xl font-extrabold text-purple-900 mb-3">
+                        {showPastEvents ? 'No Past Events' : 'No Upcoming Events'}
+                    </h3>
                     <p className="text-purple-600 max-w-2xl mx-auto mb-8">
-                        We are getting the next set of experiences ready for you. Check back soon, or clear your search to explore everything currently available.
+                        {showPastEvents
+                            ? 'There are no past events to display. Check out upcoming events instead!'
+                            : 'We are getting the next set of experiences ready for you. Check back soon, or clear your search to explore everything currently available.'}
                     </p>
-                    {search.trim() && (
-                        <button
-                            type="button"
-                            onClick={() => setSearch('')}
-                            className="bg-purple-700 text-white font-semibold px-6 py-3 rounded-full hover:bg-purple-900 transition"
-                        >
-                            Clear Search
-                        </button>
-                    )}
+                    <div className="flex gap-3 justify-center">
+                        {search.trim() && (
+                            <button
+                                type="button"
+                                onClick={() => setSearch('')}
+                                className="bg-purple-700 text-white font-semibold px-6 py-3 rounded-full hover:bg-purple-900 transition"
+                            >
+                                Clear Search
+                            </button>
+                        )}
+                        {showPastEvents && (
+                            <button
+                                type="button"
+                                onClick={() => setShowPastEvents(false)}
+                                className="bg-gray-700 text-white font-semibold px-6 py-3 rounded-full hover:bg-gray-900 transition"
+                            >
+                                View Upcoming Events
+                            </button>
+                        )}
+                    </div>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {events.map(event => (
+                    {displayedEvents.map(event => (
                         <div key={event._id} className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition flex flex-col">
                             <div className="h-48 bg-gray-200 overflow-hidden relative">
                                 {event.imageUrl || event.image ? (

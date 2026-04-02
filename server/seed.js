@@ -51,11 +51,11 @@ const eventsData = (adminId) => [
     {
         title: 'Tech Summit 2027',
         description: 'A premier technology conference bringing together innovators, engineers, and entrepreneurs from across the globe. Featuring keynote speakers, breakout sessions, and networking opportunities.',
-        date: new Date('2027-06-15T09:00:00Z'),
+        date: new Date('2026-06-15T09:00:00Z'),
         location: 'Mumbai, India',
         category: 'Technology',
         totalSeats: 500,
-        availableSeats: 480,
+        availableSeats: 2,
         ticketPrice: 1499,
         imageUrl: 'https://picsum.photos/seed/techsummit/800/400',
         createdBy: adminId,
@@ -63,7 +63,7 @@ const eventsData = (adminId) => [
     {
         title: 'Indie Music Fest 2027',
         description: 'A three-day open-air festival celebrating independent artists across genres — folk, jazz, electronic, and more. Live performances from 50+ artists.',
-        date: new Date('2027-07-20T17:00:00Z'),
+        date: new Date('2025-07-20T17:00:00Z'),
         location: 'Bangalore, India',
         category: 'Music',
         totalSeats: 2000,
@@ -75,7 +75,7 @@ const eventsData = (adminId) => [
     {
         title: 'Web3 Innovation Conference',
         description: 'Dive deep into blockchain, NFTs, and decentralized applications with industry leaders. Includes hackathon, workshops, and investor sessions.',
-        date: new Date('2027-08-05T09:00:00Z'),
+        date: new Date('2026-08-05T09:00:00Z'),
         location: 'Delhi, India',
         category: 'Technology',
         totalSeats: 300,
@@ -87,7 +87,7 @@ const eventsData = (adminId) => [
     {
         title: 'Startup Pitch Night 2027',
         description: 'Watch rising founders pitch their ideas to a panel of top-tier investors. Network with VCs, mentors, and fellow entrepreneurs. Dinner included.',
-        date: new Date('2027-08-10T18:30:00Z'),
+        date: new Date('2026-08-10T18:30:00Z'),
         location: 'Pune, India',
         category: 'Business',
         totalSeats: 150,
@@ -99,7 +99,7 @@ const eventsData = (adminId) => [
     {
         title: 'Art & Craft Expo 2027',
         description: 'Explore handcrafted artwork, live painting sessions, and interactive workshops with renowned artists from across the country. Perfect for art enthusiasts.',
-        date: new Date('2027-09-12T10:00:00Z'),
+        date: new Date('2026-09-12T10:00:00Z'),
         location: 'Ahmedabad, India',
         category: 'Art',
         totalSeats: 400,
@@ -123,7 +123,7 @@ const eventsData = (adminId) => [
     {
         title: 'Live Comedy Night',
         description: 'Stand-up comedy night featuring top comedians performing their best sets. An evening of laughter, entertainment, and fun with friends.',
-        date: new Date('2027-11-05T19:00:00Z'),
+        date: new Date('2026-11-05T19:00:00Z'),
         location: 'Mumbai, India',
         category: 'Entertainment',
         totalSeats: 250,
@@ -135,7 +135,7 @@ const eventsData = (adminId) => [
     {
         title: 'Fashion Week 2027',
         description: 'Showcase of latest fashion collections from emerging and established designers. Featuring runway shows, styling workshops, and exclusive previews.',
-        date: new Date('2027-11-18T18:00:00Z'),
+        date: new Date('2025-11-18T18:00:00Z'),
         location: 'Delhi, India',
         category: 'Fashion',
         totalSeats: 500,
